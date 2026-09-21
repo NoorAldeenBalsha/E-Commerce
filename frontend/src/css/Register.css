@@ -1,0 +1,368 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.register-wrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0b1536;
+  overflow: hidden;
+  padding: 30px 24px;
+}
+
+/* الشرائط المائلة الخلفية */
+.bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.stripe {
+  position: absolute;
+  transform: rotate(-35deg);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.18), rgba(96, 165, 250, 0.08));
+  border-radius: 9999px;
+}
+
+.stripe-1 {
+  width: 700px;
+  height: 90px;
+  top: 5%;
+  left: 25%;
+}
+
+.stripe-2 {
+  width: 1100px;
+  height: 150px;
+  top: 30%;
+  left: 5%;
+}
+
+.stripe-3 {
+  width: 600px;
+  height: 100px;
+  bottom: 0%;
+  left: -10%;
+}
+
+/* الحاوية الأساسية */
+.register-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1150px;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  align-items: center;
+  gap: 50px;
+}
+
+/* الجانب الأيسر */
+.left-content {
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.store-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff7a18 0%, #ff4b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255, 75, 0, 0.4);
+}
+
+.brand-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.join-heading {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.accent-line {
+  width: 60px;
+  height: 4px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  margin-top: 10px;
+}
+
+.join-text {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  line-height: 1.65;
+}
+
+.membership-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.perk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.perk-icon {
+  color: #ff7a18;
+}
+
+/* كرت النموذج الأيمن */
+.register-card {
+  background: #33486c;
+  border-radius: 16px;
+  padding: 36px 36px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.form-title {
+  color: #ffffff;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.form-subtitle {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  margin-top: 4px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-label {
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.input-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-control {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  background-color: #8da1bc;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-control::placeholder {
+  color: #475569;
+  font-weight: 400;
+}
+
+.input-control:focus {
+  background-color: #a2b4cd;
+  border-color: #ff7a18;
+  box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.2);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* الموافقة على الشروط */
+.terms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  accent-color: #ff7a18;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.terms-checkbox label {
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.terms-checkbox a {
+  color: #ff7a18;
+  text-decoration: underline;
+}
+
+.btn-register-submit {
+  width: 100%;
+  height: 44px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #ff7a18 0%, #ff4b00 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(255, 75, 0, 0.4);
+}
+
+.btn-register-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(255, 75, 0, 0.55);
+}
+
+/* الفاصل */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0 10px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+.social-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.social-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.social-btn:hover {
+  background: #ff7a18;
+  transform: scale(1.1);
+}
+
+.toggle-auth {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.toggle-link {
+  color: #ff6a00;
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.toggle-link:hover {
+  text-decoration: underline;
+  color: #ff8533;
+}
+
+/* الشاشات الصغيرة */
+@media (max-width: 860px) {
+  .register-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .left-content {
+    align-items: center;
+    text-align: center;
+  }
+  .accent-line {
+    margin: 10px auto 0;
+  }
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+}

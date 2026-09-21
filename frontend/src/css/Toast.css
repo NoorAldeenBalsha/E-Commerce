@@ -1,0 +1,113 @@
+/* --- حاوية الـ Toast الأساسية --- */
+.toast-container {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none; /* للسماح بالضغط على العناصر خلفها */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- مكان النوع الأول: روتيني (أعلى اليمين) --- */
+.toast-container.top-right {
+  top: 20px;
+  right: 20px;
+  align-items: flex-end;
+}
+
+/* --- مكان النوع الثاني: مهم (منتصف الشاشة) --- */
+.toast-container.centered {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  align-items: center;
+}
+
+/* --- التصميم العام للكارت --- */
+.toast-card {
+  pointer-events: auto; /* السماح بالتفاعل مع الكارت */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  min-width: 300px;
+  max-width: 450px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* زر الإغلاق */
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0;
+  display: flex;
+}
+.toast-close-btn:hover { color: white; }
+
+
+/* ========================================= */
+/* --- ستستايلات النوع الأول: روتيني (INFO/SUCCESS) --- */
+/* ========================================= */
+.toast-card.type-routine {
+  background-color: #172344; /* كحلي فاتح قليلاً من الهوية */
+  border-left: 4px solid #ff7a18; /* خط برتقالي جانبي */
+  color: #ffffff;
+  animation: slideInRight 0.3s ease forwards;
+}
+
+.toast-card.type-routine .toast-icon {
+  color: #ff7a18; /* أيقونة برتقالية */
+}
+
+/* حركة الدخول من اليمين للنوع الروتيني */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* حركة الخروج للنوع الروتيني */
+.toast-card.type-routine.exiting {
+  animation: slideOutRight 0.3s ease forwards;
+}
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+
+/* ========================================= */
+/* --- ستايلات النوع الثاني: مهم (WARNING/ERROR) --- */
+/* ========================================= */
+.toast-card.type-important {
+  background-color: #b91c1c; /* أحمر داكن للتنبيه */
+  border: 2px solid #ff4b00; /* إطار برتقالي محمر */
+  color: #ffffff;
+  animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+  box-shadow: 0 0 40px rgba(255, 75, 0, 0.4); /* توهج برتقالي */
+}
+
+.toast-card.type-important .toast-icon {
+  color: #ffffff; /* أيقونة بيضاء */
+}
+
+/* حركة الظهور المفاجئ Pop-in للنوع المهم */
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* حركة الخروج للنوع المهم */
+.toast-card.type-important.exiting {
+  animation: popOut 0.3s ease forwards;
+}
+@keyframes popOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.5); opacity: 0; }
+}
