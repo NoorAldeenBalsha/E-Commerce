@@ -79,9 +79,16 @@ export class User {
   @Column({ default: false })
   isAccountverified: boolean;
   //============================================================================
-   @Column({ type: 'varchar',default: false })
+  @Column({ type: 'varchar',default: false })
   refreshToken?: string | null;
   //============================================================================
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt: Date | null;
+  //============================================================================
+  @Column({ name: 'reset_code', type: 'varchar', length: 255, nullable: true })
+  resetCode: string | null;
+  //============================================================================
+  @Column({ name: 'reset_code_expiry', type: 'timestamptz', nullable: true })
+  resetCodeExpiry: Date;
+  //============================================================================
 }

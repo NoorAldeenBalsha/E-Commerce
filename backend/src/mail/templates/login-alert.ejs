@@ -1,0 +1,115 @@
+<% const userLang = typeof lang !== 'undefined' ? lang : 'en'; 
+ const userName = typeof name !== 'undefined' && name ? name : (userLang === 'ar' ? 'عميلنا العزيز' : 'Valued Customer');
+  const siteName = typeof appName !== 'undefined' ? appName : 'Store';
+   const now = typeof today !== 'undefined' ? today : new Date();
+    const securityUrl = typeof resetPasswordUrl !== 'undefined' ? resetPasswordUrl : 'http://localhost:5173/auth/forgot-password';
+     %>
+      <!-- الهيدر وشعار الموقع -->
+      <tr>
+        <td align="center" style="background-color: #0f172a; padding: 28px 20px;">
+          <span style="font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase;">
+            <%= siteName %>
+          </span>
+        </td>
+      </tr>
+
+      <!-- محتوى الرسالة باللغة العربية -->
+      <% if (userLang === 'ar') { %>
+      <tr>
+        <td dir="rtl" style="padding: 40px 35px 30px; text-align: right; color: #334155; line-height: 1.6;">
+          <h1 style="margin: 0 0 16px; font-size: 20px; font-weight: 700; color: #0f172a;">
+            مرحباً <%= userName %> 👋
+          </h1>
+          
+          <p style="margin: 0 0 24px; font-size: 15px; color: #475569;">
+            نرغب بإعلامك بأنه تم تسجيل الدخول إلى حسابك في <strong><%= siteName %></strong> بنجاح.
+          </p>
+
+          <!-- بطاقة تفاصيل تسجيل الدخول -->
+          <table role="presentation" width="100%" style="background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+            <tr>
+              <td style="padding: 16px 20px; font-size: 14px; color: #475569;">
+                <div style="margin-bottom: 8px;">
+                  <span style="color: #64748b;">📅 التاريخ:</span> <strong><%= now.toLocaleDateString('ar-EG', { dateStyle: 'long' }) %></strong>
+                </div>
+                <div>
+                  <span style="color: #64748b;">⏰ التوقيت:</span> <strong><%= now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) %></strong>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- صندوق التنبيه الأمني -->
+          <div style="background-color: #fef2f2; border-right: 4px solid #ef4444; border-radius: 4px; padding: 14px 16px; margin-bottom: 28px;">
+            <p style="margin: 0; font-size: 13.5px; color: #991b1b; line-height: 1.5;">
+              <strong>هل كنت أنت من قام بالدخول؟</strong> إذا لم تكن أنت، يرجى تغيير كلمة المرور فوراً لحماية حسابك من أي وصول غير مصرح به.
+            </p>
+          </div>
+
+          <!-- زر الإجراء -->
+          <div style="text-align: center; margin-bottom: 20px;">
+            <a href="<%= securityUrl %>" style="display: inline-block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+              تأمين الحساب وكلمة المرور
+            </a>
+          </div>
+        </td>
+      </tr>
+
+      <!-- محتوى الرسالة باللغة الإنجليزية -->
+      <% } else { %>
+      <tr>
+        <td dir="ltr" style="padding: 40px 35px 30px; text-align: left; color: #334155; line-height: 1.6;">
+          <h1 style="margin: 0 0 16px; font-size: 20px; font-weight: 700; color: #0f172a;">
+            Hello <%= userName %> 👋
+          </h1>
+          
+          <p style="margin: 0 0 24px; font-size: 15px; color: #475569;">
+            We detected a successful sign-in to your <strong><%= siteName %></strong> account.
+          </p>
+
+          <!-- Activity Details Card -->
+          <table role="presentation" width="100%" style="background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+            <tr>
+              <td style="padding: 16px 20px; font-size: 14px; color: #475569;">
+                <div style="margin-bottom: 8px;">
+                  <span style="color: #64748b;">📅 Date:</span> <strong><%= now.toLocaleDateString('en-US', { dateStyle: 'long' }) %></strong>
+                </div>
+                <div>
+<span style="color: #64748b;">⏰ Time:</span> <strong><%= now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %></strong>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Security Warning Box -->
+          <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px; padding: 14px 16px; margin-bottom: 28px;">
+            <p style="margin: 0; font-size: 13.5px; color: #991b1b; line-height: 1.5;">
+              <strong>Don't recognize this activity?</strong> Please reset your password immediately to protect your account from unauthorized access.
+            </p>
+          </div>
+
+          <!-- Call to Action Button -->
+          <div style="text-align: center; margin-bottom: 20px;">
+            <a href="<%= securityUrl %>" style="display: inline-block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+              Secure My Account
+            </a>
+          </div>
+        </td>
+      </tr>
+      <% } %>
+
+      <!-- الفوتر الموحد -->
+      <tr>
+        <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 30px; text-align: center;">
+          <p style="margin: 0 0 6px; font-size: 12px; color: #94a3b8;">
+            <%= userLang === 'ar' ? 'هذه رسالة آلية تم إرسالها لأمان حسابك، يُرجى عدم الرد عليها.' : 'This is an automated security notification. Please do not reply directly.' %>
+          </p>
+          <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+            &copy; <%= new Date().getFullYear() %> <%= siteName %>. <%= userLang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' %>
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td>
+</tr>

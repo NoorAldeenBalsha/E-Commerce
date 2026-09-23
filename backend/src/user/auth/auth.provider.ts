@@ -13,6 +13,7 @@ import { LoginDto } from '../dto/login.dto';
 import { AuthTokens, JwtPayload, JWTPayloadType } from 'utilitis/types';
 import { RequestWithCookies } from 'utilitis/interface';
 import { MailService } from 'src/mail/mail.service';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 @Injectable()
 export class AuthProvider {
@@ -208,6 +209,8 @@ export class AuthProvider {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
     }
+     
+    await this.mailService.sendLoginAlertEmail(user.email, `${user.firstName} ${user.lastName}`, currentLang);
 
     // 11. Return response payload
     return {
@@ -257,7 +260,7 @@ export class AuthProvider {
   // ============================================================================
   //  إرسال كود استعادة كلمة المرور (Forgot Password)
   // ============================================================================
-  /* public async SendResetPasswordCode(userEmail: string, lang: 'en' | 'ar' = 'en') {
+  public async SendResetPasswordCode(userEmail: string, lang: 'en' | 'ar' = 'en') {
     const currentLang: 'en' | 'ar' = ['en', 'ar'].includes(lang) ? lang : 'en';
     const cleanedEmail = userEmail.trim().toLowerCase();
 
@@ -265,37 +268,42 @@ export class AuthProvider {
       where: { email: cleanedEmail },
     });
 
+    const successMsg =
+      currentLang === 'ar'
+        ? 'إذا كان هذا البريد مسجلاً لدينا، فقد تم إرسال رمز إعادة التعيين إليه'
+        : 'If this email is registered, a password reset code has been sent';
+
+    // حماية من تخمين الإيميلات (User Enumeration Protection)
     if (!user) {
-      const msg = currentLang === 'ar' ? 'المستخدم غير موجود' : 'User not found';
-      throw new BadRequestException(msg);
+      return {
+        message: successMsg,
+      };
     }
 
-    const resetCode = Math.floor(1000 + Math.random() * 9000).toString();
-    const expiry = new Date(Date.now() + 2 * 60 * 1000); // دقيقتين صلاحية
+    // توليد رمز مكون من 4 أو 6 أرقام (الأفضل 6 أرقام للأمان)
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 دقائق صلاحية
 
-    //user.resetCode = resetCode;
+    // تشفير الرمز قبل حفظه في قاعدة البيانات
+    const hashedCode = await bcrypt.hash(resetCode, 10);
+
+    // تخزين الرمز المشفر وتاريخ الانتهاء
+    user.passwordResetToken = hashedCode; // أو الحقل المخصص في الـ Entity (مثل resetCode)
     user.resetCodeExpiry = expiry;
     await this.userRepository.save(user);
 
-    //await this.mailService.sendResetCodeEmail(user.email, resetCode, currentLang);
-
-    const successMsg =
-      currentLang === 'ar'
-        ? 'تم إرسال رمز إعادة تعيين كلمة المرور إلى بريدك الإلكتروني'
-        : 'Reset code has been sent to your email';
+    // إرسال الكود الحقيقي للمستخدم عبر البريد
+    await this.mailService.sendResetCodeEmail(user.email, resetCode, currentLang);
 
     return {
       message: successMsg,
-      UserName: `\({user.firstName}\){user.lastName}`.trim(),
+      userName: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
     };
-  }*/
+  }
   // ============================================================================
   // 5. تعيين كلمة المرور الجديدة (Reset Password)
   // ============================================================================
-  /*public async ResetPassword(
-    resetPasswordDto: ResetPasswordDto,
-    lang: 'en' | 'ar' = 'en',
-  ) {
+  public async ResetPassword(resetPasswordDto: ResetPasswordDto,lang: 'en' | 'ar' = 'en',) {
     const currentLang: 'en' | 'ar' = ['en', 'ar'].includes(lang) ? lang : 'en';
     const { email, newPassword, resetCode } = resetPasswordDto;
 
@@ -309,21 +317,35 @@ export class AuthProvider {
       );
     }
 
-    if (
-      !user.resetCode ||
-      user.resetCode !== resetCode ||
-      !user.resetCodeExpiry ||
-      new Date() > new Date(user.resetCodeExpiry)
-    ) {
+    // 1. التحقق من وجود التوكن وتاريخ الصلاحية
+    const isExpired =
+      !user.resetCodeExpiry || new Date() > new Date(user.resetCodeExpiry);
+
+    if (!user.passwordResetToken || isExpired) {
       throw new BadRequestException(
         currentLang === 'ar'
-          ? 'رمز التحقق غير صالح أو منتهي'
+          ? 'رمز التحقق منتهي الصلاحية أو غير صالح'
           : 'Invalid or expired reset code',
       );
     }
 
+    // 2. مطابقة الرمز المدخل مع الـ Hash المخزن في القاعدة
+    const isMatch = await bcrypt.compare(
+      String(resetCode).trim(),
+      user.passwordResetToken,
+    );
+
+    if (!isMatch) {
+      throw new BadRequestException(
+        currentLang === 'ar'
+          ? 'رمز التحقق غير صحيح'
+          : 'Invalid reset code',
+      );
+    }
+
+    // 3. تحديث كلمة المرور وتصفير الحقول
     user.passwordHash = await this.hashPasswword(newPassword);
-    user.resetCode = null;
+    user.passwordResetToken = null;
     user.resetCodeExpiry = null;
 
     await this.userRepository.save(user);
@@ -333,9 +355,9 @@ export class AuthProvider {
         currentLang === 'ar'
           ? 'تم تغيير كلمة المرور بنجاح'
           : 'Password changed successfully',
-      userName: `\({user.firstName}\){user.lastName}`.trim(),
+      userName: `\(${user.firstName ?? ''}\)${user.lastName ?? ''}`.trim(),
     };
-  }*/
+  }
   // ============================================================================
   // دوال مساعدة (Helpers)
   // ============================================================================

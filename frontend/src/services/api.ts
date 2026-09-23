@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // غيّر الرابط ليتوافق مع منفذ الباك إند لديك (مثلاً 3000 أو 5000)
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', 
+  baseURL: 'http://localhost:3000/api', 
   headers: {
     'Content-Type': 'application/json',
   },

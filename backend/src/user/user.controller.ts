@@ -12,6 +12,8 @@ import { Roles } from './decorator/user-role.decorator';
 import { UserRole } from 'utilitis/enums';
 import { UpdateUserDto } from './dto/update-user.dto';
 import type { RequestWithCookies } from 'utilitis/interface';
+import { SendCodeDto } from './dto/send-code.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Users')
 @Controller('api/user')
@@ -127,7 +129,7 @@ export class UserController {
     const data = await this.userService.loginWithGoogle(req.user,res);
 
     return this.userService.loginWithGoogle(req.user,res);
-  }
+  }*/
   //============================================================================
   //Logout user and clear the refresh token cookie [Public]
   @Post('logout')
@@ -140,7 +142,7 @@ export class UserController {
   ) {
     const lang = req.lang || 'en';
     return this.userService.logout(response, req, lang);
-  }*/
+  }
   //============================================================================
   //Issue a new access token using the refresh token from cookies [Public]
   //============================================================================
@@ -157,24 +159,27 @@ export class UserController {
   //============================================================================
   //Send reset password code to email [Public]
   //============================================================================
-  /*@Post('forgot-password')
+  @Post('send-code')
   @HttpCode(HttpStatus.OK)
-  @ApiBody({ description: 'Forgot Password DTO', type: ForgotPasswordDto})
+  @ApiBody({ description: 'Send Code DTO', type: SendCodeDto })
   @ApiResponse({ status: 200, description: 'Password reset email sent' })
-  public forgotPassword(@Body() body: ForgotPasswordDto, @Req() req: any) {
-    const lang = req.lang || 'en';
+  public forgotPassword(
+    @Body() body: SendCodeDto,
+    @Req() req: any,
+  ) {
+    const lang = req?.lang || 'en';
     return this.userService.sendRestPassword(body, lang);
-  }*/
+  }
   //============================================================================
   //Reset password using code/token [Public]
   //============================================================================
-  /*@Post('reset-password')
+  @Post('reset-password')
   @ApiBody({ description: 'Reset Password DTO', type: ResetPasswordDto })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   public resetPassword(@Body() body: ResetPasswordDto, @Req() req: any) {
     const lang = req.lang || 'en';
     return this.userService.resetPassword(body, lang);
-  }*/
+  }
   //============================================================================
   //Email verification endpoint after registration [Public]
   //============================================================================

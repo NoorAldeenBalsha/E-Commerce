@@ -12,6 +12,9 @@ import { UserRole } from 'utilitis/enums';
 import { RequestWithCookies } from 'utilitis/interface';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SendCodeDto } from './dto/send-code.dto';
+
 
 @Injectable()
 export class UserService {
@@ -216,84 +219,84 @@ export class UserService {
   // Update user information
   //============================================================================
   public async update(id: string,currentUser: JWTPayloadType,updateUserDto: UpdateUserDto,lang: 'en' | 'ar' = 'en',): Promise<User> {
-  // 1. Sanitize language input
-  const currentLang: 'en' | 'ar' = ['en', 'ar'].includes(lang) ? lang : 'en';
+    // 1. Sanitize language input
+    const currentLang: 'en' | 'ar' = ['en', 'ar'].includes(lang) ? lang : 'en';
 
-  // 2. Authorization check: User can only update their own profile unless they are an ADMIN
-  const isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === 'admin';
-  const isOwner = currentUser.id?.toString() === id.toString();
+    // 2. Authorization check: User can only update their own profile unless they are an ADMIN
+    const isAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === 'admin';
+    const isOwner = currentUser.id?.toString() === id.toString();
 
-  // 403 Forbidden is the proper HTTP semantic
-  if (!isAdmin && !isOwner) {
-    const message =
-      currentLang === 'ar'
-        ? 'غير مسموح لك بتعديل بيانات هذا المستخدم'
-        : 'You are not authorized to modify this user';
-    throw new ForbiddenException(message); 
-  }
-
-  // 3. Find target user in PostgreSQL
-  const user = await this.userModel.findOne({ where: { id } });
-  if (!user) {
-    const message = currentLang === 'ar' ? 'المستخدم غير موجود' : 'User not found';
-    throw new NotFoundException(message);
-  }
-
-  // 4. Validate unique email collision if email is being modified
-  if (updateUserDto.email && updateUserDto.email.trim().toLowerCase() !== user.email) {
-    const emailExists = await this.userModel.findOne({
-      where: {
-        email: updateUserDto.email.trim().toLowerCase(),
-        id: Not(id),
-      },
-    });
-
-    if (emailExists) {
+    // 403 Forbidden is the proper HTTP semantic
+    if (!isAdmin && !isOwner) {
       const message =
         currentLang === 'ar'
-          ? 'البريد الإلكتروني الجديد مستخدم بالفعل'
-          : 'Email is already in use by another account';
-      throw new ConflictException(message);
+          ? 'غير مسموح لك بتعديل بيانات هذا المستخدم'
+          : 'You are not authorized to modify this user';
+      throw new ForbiddenException(message); 
     }
 
-    user.email = updateUserDto.email.trim().toLowerCase();
-    // Invalidate previous email verification when changing address
-    user.status == 'pending_verification';
-    user.emailVerifiedAt = null;
-  }
-
-  // 5. Validate unique phone number collision if provided
-  if (updateUserDto.phoneNumber && updateUserDto.phoneNumber.trim() !== user.phoneNumber) {
-    const phoneExists = await this.userModel.findOne({
-      where: {
-        phoneNumber: updateUserDto.phoneNumber.trim(),
-        id: Not(id),
-      },
-    });
-
-    if (phoneExists) {
-      const message =
-        currentLang === 'ar'
-          ? 'رقم الهاتف مستخدم بالفعل'
-          : 'Phone number is already in use';
-      throw new ConflictException(message);
+    // 3. Find target user in PostgreSQL
+    const user = await this.userModel.findOne({ where: { id } });
+    if (!user) {
+      const message = currentLang === 'ar' ? 'المستخدم غير موجود' : 'User not found';
+      throw new NotFoundException(message);
     }
 
-    user.phoneNumber = updateUserDto.phoneNumber.trim();
-  }
+    // 4. Validate unique email collision if email is being modified
+    if (updateUserDto.email && updateUserDto.email.trim().toLowerCase() !== user.email) {
+      const emailExists = await this.userModel.findOne({
+        where: {
+          email: updateUserDto.email.trim().toLowerCase(),
+          id: Not(id),
+        },
+      });
 
-  // 6. Update general identity fields
-  if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName.trim();
-  if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName.trim();
-  if (updateUserDto.avatarUrl !== undefined) user.avatarUrl = updateUserDto.avatarUrl;
+      if (emailExists) {
+        const message =
+          currentLang === 'ar'
+            ? 'البريد الإلكتروني الجديد مستخدم بالفعل'
+            : 'Email is already in use by another account';
+        throw new ConflictException(message);
+      }
 
-  // 7. Strictly enforce role elevation: Only ADMINs can mutate roles
-  if (updateUserDto.role !== undefined && isAdmin) {
-    user.role = updateUserDto.role;
-  }
+      user.email = updateUserDto.email.trim().toLowerCase();
+      // Invalidate previous email verification when changing address
+      user.status == 'pending_verification';
+      user.emailVerifiedAt = null;
+    }
 
-  // 8. Persist updated user state
-  return await this.userModel.save(user);
+    // 5. Validate unique phone number collision if provided
+    if (updateUserDto.phoneNumber && updateUserDto.phoneNumber.trim() !== user.phoneNumber) {
+      const phoneExists = await this.userModel.findOne({
+        where: {
+          phoneNumber: updateUserDto.phoneNumber.trim(),
+          id: Not(id),
+        },
+      });
+
+      if (phoneExists) {
+        const message =
+          currentLang === 'ar'
+            ? 'رقم الهاتف مستخدم بالفعل'
+            : 'Phone number is already in use';
+        throw new ConflictException(message);
+      }
+
+      user.phoneNumber = updateUserDto.phoneNumber.trim();
+    }
+
+    // 6. Update general identity fields
+    if (updateUserDto.firstName !== undefined) user.firstName = updateUserDto.firstName.trim();
+    if (updateUserDto.lastName !== undefined) user.lastName = updateUserDto.lastName.trim();
+    if (updateUserDto.avatarUrl !== undefined) user.avatarUrl = updateUserDto.avatarUrl;
+
+    // 7. Strictly enforce role elevation: Only ADMINs can mutate roles
+    if (updateUserDto.role !== undefined && isAdmin) {
+      user.role = updateUserDto.role;
+    }
+
+    // 8. Persist updated user state
+    return await this.userModel.save(user);
   }
   //============================================================================
   // Deactivate account (User-initiated or temporary suspension)
@@ -449,27 +452,50 @@ export class UserService {
   }
   //============================================================================
   // Send a reset password link to user's email
- /*public async sendRestPassword(ForgotPasswordDto,lang: 'en' | 'ar' = 'en') {
-      lang=['en','ar'].includes(lang)?lang:'en';
-      const {email,recaptchaToken}   = ForgotPasswordDto;
-      // Check reCAPTCHA 
+  public async sendRestPassword(sendCodeDto: SendCodeDto,lang: 'en' | 'ar' = 'en',) {
+    const currentLang: 'en' | 'ar' = ['en', 'ar'].includes(lang) ? lang : 'en';
+    const { email } = sendCodeDto;
+
+    // 1. Verify Google reCAPTCHA (v2 / v3)
+    /*if (recaptchaToken) {
       const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
-      const { data } = await axios.post(verifyUrl);
-      if (!data.success) {
-        throw new BadRequestException({
-        message: lang === 'ar'
-        ? 'فشل التحقق من أنك لست روبوتاً'
-        : 'Failed to verify reCAPTCHA',
-    });
+      try {
+        const { data } = await axios.post(
+          'https://www.google.com/recaptcha/api/siteverify',
+          null,
+          {
+            params: {
+              secret: secretKey,
+              response: recaptchaToken,
+            },
+          },
+        );
+
+        if (!data.success) {
+          throw new BadRequestException(
+            currentLang === 'ar'
+              ? 'فشل التحقق من أنك لست روبوتاً'
+              : 'Failed to verify reCAPTCHA',
+          );
+        }
+      } catch (error) {
+        if (error instanceof BadRequestException) throw error;
+        throw new BadRequestException(
+          currentLang === 'ar'
+            ? 'خطأ أثناء التحقق من reCAPTCHA'
+            : 'Error validating reCAPTCHA token',
+        );
+      }
+    }*/
+
+    // 2. Delegate to AuthProvider
+    return this.authProvider.SendResetPasswordCode(email, currentLang);
   }
-      return await this.authProvider.SendResetPasswordCode(email,lang);
-  };*/
   //============================================================================
   // Reset the user's password
- /* public async resetPassword(body: ResetPasswordDto,lang: 'en' | 'ar' = 'en') {
+  public async resetPassword(body: ResetPasswordDto,lang: 'en' | 'ar' = 'en') {
             lang=['en','ar'].includes(lang)?lang:'en';
       return await this.authProvider.ResetPassword(body,lang);
-  };*/
+  };
   //============================================================================
 }

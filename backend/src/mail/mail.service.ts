@@ -1,147 +1,180 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable, InternalServerErrorException, RequestTimeoutException } from '@nestjs/common';
+import {Injectable,InternalServerErrorException,RequestTimeoutException,} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
+  private readonly appName: string;
+  private readonly mailUser: string;
+  private readonly frontendUrl: string;
+
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
-  ) {}
-  // إرسال بريد التحقق من البريد الإلكتروني
-  public async sendVerifyEmailTemplate( toEmail: string, verificationLink: string, lang: 'ar' | 'en' = 'en', ): Promise<void> { const subject = lang === 'ar' ? 'تأكيد البريد الإلكتروني' : 'Email Verification';
-const text = lang === 'ar' ?` مرحباً، لتأكيد حسابك اضغط على الرابط التالي:\n${verificationLink}` 
-: `Hello, please verify your email by clicking the link:\n${verificationLink}`;
-const html = lang === 'ar' ?  `<div dir="rtl" style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;">
- <div style="max-width: 550px; margin: auto; background-color: #ffffff; padding: 25px; border-radius: 8px;
-  border: 1px solid #e1e4e8;"> <h2 style="color: #2c3e50; text-align: center;">مرحباً بك في SkyAir!</h2> <p style="font-size: 15px;
-   color: #555; line-height: 1.6;"> شكراً لتسجيلك معنا. لتفعيل حسابك، يرجى الضغط على الزر أدناه: </p>
-    <div style="text-align: center; margin: 30px 0;"> <a href="${verificationLink}" 
-    style="background-color: #0066cc; color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 5px; 
-    font-weight: bold; display: inline-block;"> تأكيد البريد الإلكتروني </a> </div> <p style="font-size: 13px; color: #777;">
-    إذا لم يعمل الزر، يمكنك نسخ ولصق الرابط التالي مباشرة في المتصفح`
-    :`</p> <p style="font-size: 12px; color: #0066cc;
-     word-break: break-all;">${verificationLink}</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-      <p style="font-size: 12px; color: #999; text-align: center;">إذا لم تقم بالتسجيل، يرجى تجاهل هذه الرسالة.</p> </div>
-       </div> :  <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 30px;"> <div style="max-width: 550px;
-        margin: auto; background-color: #ffffff; padding: 25px; border-radius: 8px; border: 1px solid #e1e4e8;">
-         <h2 style="color: #2c3e50; text-align: center;">Welcome to SkyAir!</h2> <p style="font-size: 15px; color: #555;
-          line-height: 1.6;"> Thank you for signing up. Please click the button below to verify your email address: </p>
-           <div style="text-align: center; margin: 30px 0;"> <a href="${verificationLink}" style="background-color: #0066cc;
-            color: #ffffff; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; display: inline-block;">
-             Verify Email </a> </div> <p style="font-size: 13px; color: #777;">If the button does not work, copy and paste this
-              link into your browser:</p> <p style="font-size: 12px; color: #0066cc; word-break: break-all;">${verificationLink}</p>
-               <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p style="font-size: 12px; color: #999;
-                text-align: center;">If you did not create this account, please ignore this email.</p> </div> </div>`;
-await this.sendEmail(toEmail, subject, text, html, lang); }
-
-  // إرسال بريد إعادة تعيين كلمة المرور
-  async sendResetPasswordTemplate(toEmail: string, resetLink: string, lang: 'ar' | 'en' = 'en') {
-    const subject = lang === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Password Reset';
-    const text = lang === 'ar'
-      ?` مرحباً، يمكنك إعادة تعيين كلمة المرور الخاصة بك عبر الرابط التالي: ${resetLink}`
-      : `Hello, you can reset your password using the following link: ${resetLink}`;
-
-    const html = lang === 'ar'
-      ? `
-      <div dir="rtl" style="font-family: Tahoma, sans-serif; background-color: #f0f4f8; padding: 40px;">
-        <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <h2 style="color: #333;">إعادة تعيين كلمة المرور</h2>
-          <p style="font-size: 16px; color: #555;">إذا طلبت إعادة تعيين كلمة المرور، اضغط على الرابط أدناه:
-          </p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" style="background-color: #ff6347; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px;">
-              إعادة تعيين كلمة المرور
-            </a>
-          </div>
-          <p style="font-size: 14px; color: #999;">
-            إذا لم تطلب إعادة تعيين كلمة المرور، تجاهل هذا البريد.
-          </p>
-        </div>
-      </div>
-      `
-      : `
-      <div style="font-family: Arial, sans-serif; background-color: #f0f4f8; padding: 40px;">
-        <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <h2 style="color: #333;">Password Reset</h2>
-          <p style="font-size: 16px; color: #555;">
-            If you requested a password reset, click the button below:
-          </p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" style="background-color: #ff6347; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px;">
-              Reset Password
-            </a>
-          </div>
-          <p style="font-size: 14px; color: #999;">
-            If you did not request this, please ignore this email.
-          </p>
-        </div>
-      </div>
-      `;
-
-    await this.sendEmail(toEmail, subject, text, html, lang);
+  ) {
+    this.appName = this.configService.get('APP_NAME') || 'Store';
+    this.mailUser = this.configService.get('MAIL_USER') || '';
+    const storeName = this.appName || 'Store';
+    this.frontendUrl =
+      this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
   }
 
-  public async sendResetCodeEmail(email: string, code: string, lang: 'en' | 'ar' = 'en'): Promise<void> {
+  // ============================================================================
+  // 1. بريد التحقق من الحساب (Email Verification)
+  // ============================================================================
+  public async sendVerifyEmailTemplate(toEmail: string,verificationLink: string, lang: 'ar' | 'en' = 'en',): Promise<void>  {
+    const currentLang = ['ar', 'en'].includes(lang) ? lang : 'en';
+    const subject =
+      currentLang === 'ar'
+        ? `تأكيد البريد الإلكتروني - ${this.appName}`
+        : `Email Verification - ${this.appName}`;
+
+    const text =
+      currentLang === 'ar'
+        ? `مرحباً، لتأكيد حسابك يرجى فتح الرابط التالي:\n${verificationLink}`
+        : `Hello, please verify your account by visiting:\n${verificationLink}`;
+
+    const html =
+      currentLang === 'ar'
+        ? `مرحباً بك في ${this.appName}!
+        شكراً لتسجيلك معنا. لإكمال إنشاء حسابك وتفعيله، يرجى الضغط على الزر أدناه:
+        تأكيد البريد الإلكتروني
+        إذا لم تتمكن من النقر على الزر، انسخ الرابط التالي وضعه في المتصفح:
+        ${verificationLink}
+        إذا لم تقم بإنشاء هذا الحساب، يمكنك تجاهل هذا البريد بأمان.`
+
+        :`Welcome to ${this.appName}!
+        Thank you for signing up. Please verify your email address to activate your account:
+        Verify Email Address
+        If the button does not work, copy and paste this link into your browser:
+        ${verificationLink}
+        If you didn't create an account, you can safely ignore this email.`;
+        await this.sendEmail(toEmail, subject, text, html, currentLang);
+}
+
+  // ============================================================================
+  // 2. بريد رابط إعادة تعيين كلمة المرور
+  // ============================================================================
+  public async sendResetPasswordTemplate(
+  toEmail: string,
+  resetLink: string,
+  lang: 'ar' | 'en' = 'en',
+  ): Promise<void> {
+  const currentLang = ['ar', 'en'].includes(lang) ? lang : 'en';
+  const subject =
+  currentLang === 'ar'
+  ? `إعادة تعيين كلمة المرور - ${this.appName}`
+  : `Reset Your Password - ${this.appName}`;
+
+  const text =
+  currentLang === 'ar'
+  ? `مرحباً، يمكنك إعادة تعيين كلمة المرور عبر الرابط: ${resetLink}`
+  : `Hello, you can reset your password using the link: ${resetLink}`;
+
+  const html =
+  currentLang === 'ar'
+  ? `إعادة تعيين كلمة المرور
+  تلقينا طلباً لتعيين كلمة مرور جديدة لحسابك. اضغط على الزر التالي للمتابعة:
+  تغيير كلمة المرور
+  إذا لم تطلب تغيير كلمة المرور، يرجى تجاهل هذه الرسالة، ولن يتم إجراء أي تعديل على حسابك.`
+
+  :`Password Reset Request
+  We received a request to reset your password. Click the button below to choose a new one:
+  Reset Password
+  If you didn't request a password reset, you can safely ignore this email.`;
+
+  await this.sendEmail(toEmail, subject, text, html, currentLang);
+  }
+
+  // ============================================================================
+  // 3. بريد رمز التحقق (OTP Reset Code)
+  // ============================================================================
+  public async sendResetCodeEmail(email: string,code: string,lang: 'en' | 'ar' = 'en',) {
+    const currentLang = ['ar', 'en'].includes(lang) ? lang : 'en';
+    const subject =
+      currentLang === 'ar'
+        ? `رمز إعادة تعيين كلمة المرور - ${this.appName}`
+        : `Password Reset Code - ${this.appName}`;
+
     try {
-      const today = new Date().toLocaleDateString('ar-en');
       await this.mailerService.sendMail({
-    to: email,
-    from: `No Reply <${this.configService.get('MAIL_USER')}>`,
-    subject: lang === 'ar'
-      ? 'رمز إعادة تعيين كلمة المرور'
-      : 'Password Reset Code',
-    template: 'reset-code',
-    context: {
-      email,
-      code,
-      today,
-      lang,
-      message:
-        lang === 'ar'
-          ?` رمز إعادة تعيين كلمة المرور الخاص بك هو: ${code}.\nهذا الرمز صالح لمدة دقيقة واحدة فقط.`
-          : `Your password reset code is: ${code}.\nThis code is valid for only one minute.,`
-    },
-  });
+        to: email,
+        from: `${this.appName} <${this.mailUser}>`,
+        subject,
+        template: 'reset-code',
+        context: {
+          email, // <-- إضافة هذا الحقل ليتمكن القالب من قراءته
+          code,
+          appName: this.appName,
+          today: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US'),
+          lang: currentLang,
+          message:
+            currentLang === 'ar'
+              ? `رمز إعادة تعيين كلمة المرور هو: ${code}. هذا الرمز صالح لمدة دقائق معدودة فقط.`
+              : `Your password reset code is: ${code}. This code is valid for a limited time only.`,
+        },
+      });
     } catch (err) {
-      console.error(' Failed to send reset code email:', err);
+      console.error('Failed to send reset code email:', err);
       throw new RequestTimeoutException(
-        lang === 'ar' ? 'حدث خطأ، حاول مرة أخرى لاحقًا' : 'Something went wrong, please try again later'
+        currentLang === 'ar'
+          ? 'حدث خطأ أثناء إرسال الرمز، حاول مرة أخرى لاحقًا'
+          : 'Failed to send verification code, please try again later',
       );
     }
   }
-  // دالة عامة لإرسال أي بريد
-  private async sendEmail(
-  toEmail: string,
-  subject: string,
-  text: string,
-  html: string,
-  lang: 'ar' | 'en',
-) {
+
+  // ============================================================================
+  // 4. بريد إشعار تسجيل الدخول الجديد (قالب EJS الاحترافي)
+  // ============================================================================
+  public async sendLoginAlertEmail(toEmail: string,userName: string,lang: 'en' | 'ar' = 'en',) {
+    const currentLang = ['ar', 'en'].includes(lang) ? lang : 'en';
+    const subject =
+    currentLang === 'ar'
+    ? `تنبيه أمان: تم تسجيل دخول جديد - ${this.appName}`
+    : `Security Alert: New Sign-in - ${this.appName}`;
+
+    try {
+      await this.mailerService.sendMail({
+        to: toEmail,
+        from: `${this.appName} <${this.mailUser}>`,
+        subject,
+        template: 'login-alert',
+        context: {
+          lang: currentLang,
+          name: userName,
+          appName: this.appName,
+          today: new Date(),
+          resetPasswordUrl: `${this.frontendUrl}/forgot-password`,
+        },
+      });
+    } catch (error) {
+      console.error(' Error sending login alert email:', error)
+    }
+  }
+
+  // ============================================================================
+  // 5. دالة الإرسال العامة المنظمة
+  // ============================================================================
+  private async sendEmail(toEmail: string,subject: string,text: string,html: string,lang: 'ar' | 'en',): Promise<void> {
   try {
-    const fromEmail = this.configService.get('MAIL_USER');
+  const result = await this.mailerService.sendMail({
+  to: toEmail,
+  from: `${this.appName} <${this.mailUser}>`,
+  subject,
+  text,
+  html,
+  });
 
-    const result = await this.mailerService.sendMail({
-      from: `"SkyAir Support" <${fromEmail}>`,
-      to: toEmail,
-      replyTo: fromEmail,
-      subject,
-      text,
-      html,
-    });
-
-    console.log('✅ Email Delivered Successfully!');
-    console.log('Target Email:', toEmail);
+    console.log('Email Delivered Successfully to:', toEmail);
     console.log('Message ID:', result?.messageId);
-    console.log('Accepted Recipients:', result?.accepted);
   } catch (error) {
-    console.error('❌ Error sending email:', error);
+    console.error('Error sending email to:', toEmail, error);
     throw new InternalServerErrorException(
       lang === 'ar'
         ? 'فشل في إرسال البريد الإلكتروني'
         : 'Failed to send email',
     );
   }
+  }
 }
-}
-
